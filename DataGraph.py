@@ -1,9 +1,11 @@
+import time
 import platform
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt, sosfilt, sosfiltfilt
 from collections import deque
+
 
 
 osDic = {
@@ -37,10 +39,33 @@ class NewDevice(plux.SignalsDev):
         plux.SignalsDev.__init__(address)
         self.duration = 0
         self.frequency = 0
+        self.x_data = []  # Liste pour les échantillons x
+        self.y_data = []  # Liste pour les valeurs y (valeurs du signal)
+        
+        # Initialisation du graphique
+        self.fig, self.ax = plt.subplots()
+        self.ax.set_title("Affichage en temps réel des données")
+        self.ax.set_xlabel("Échantillons")
+        self.ax.set_ylabel("Valeur")
+        plt.ion()
 
-    def onRawFrame(self, nSeq, data):  # onRawFrame takes three arguments
-      #  if nSeq % 2000 == 0:
-        print(nSeq, *data)
+    def onRawFrame(self, nSeq, data):  # Traitement des données à chaque image
+        self.x_data.append(nSeq)
+        self.y_data.append(data[0])  # Supposons que le signal EMG est dans data[0]
+
+        # Effacer l'ancien graphique
+        self.ax.clear()
+
+        # Mettre à jour le graphique avec les nouvelles données
+        self.ax.plot(self.x_data, self.y_data, label="Signal EMG")
+        self.ax.legend()
+
+        # Mettre à jour l'affichage avec plt.pause() pour permettre la mise à jour en temps réel
+        plt.pause(0.01)  # Délai pour l'affichage dynamique
+
+        # Afficher les données dans le terminal
+        print(f"Frame: {nSeq}, Signal: {data[0]}")
+
         return nSeq > self.duration * self.frequency
 
 

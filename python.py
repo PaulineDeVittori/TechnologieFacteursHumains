@@ -1,88 +1,96 @@
-try:
-    import sys
-    import random
-    import math
-    import os
-    import getopt
-    import pygame
-    from socket import *
-    from pygame.locals import *
-except ImportError as err:
-    print(f"couldn't load module. {err}")
-    sys.exit(2)
+import pygame
+import random
+from emg_acquisition_script import emg_signal, start_emg_acquisition  # 
 
-    class Ball(pygame.sprite.Sprite):
-        """A ball that will move across the screen
-    Returns: ball object
-    Functions: update, calcnewpos
-    Entree: frequence contraction des muscle du mollet + mouvement (acceleration)
-    Attributes: area, vector"""
+SEUILemg=2000 
 
-    class Person(pygame.sprite.Sprite):
-        """A personn that move horizontally and protect the goal
-    Returns: person object,
-    Functions: update, calcnewpos
-    entree: frequence rythme cardiaque et respiration 
-    Attributes: area, vector"""
+pygame.init()
 
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 100, 0)
+RED = (200, 0, 0)
+BLUE = (0, 0, 200)
 
-    class Goal(pygame.sprite.Sprite):
-            """Object fix qui doit indiquer si l'utilisateur à marqué 
-    Returns:  goal object,
-    Functions: update, calcnewpos
-    entree: entreeBallon??
-    Attributes: area, vector"""
-    #essayer de la faire avec un true false /r colision goal ballon
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Jeu de Foot")
 
+clock = pygame.time.Clock()
+FPS = 60
 
-    def __init__(self, vector):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_png('ball.png')
-        screen = pygame.display.get_surface()
-        self.area = screen.get_rect()
-        self.vector = vector
+goal_width = 200
+goal_height = 20
+goal_x = (WIDTH - goal_width) // 2
+goal_y = 30
 
-    def update(self):
-        newpos = self.calcnewpos(self.rect,self.vector)
-        self.rect = newpos
+goalkeeper_width = 80
+goalkeeper_height = 20
+goalkeeper_x = (WIDTH - goalkeeper_width) // 2
+goalkeeper_y = goal_y + goal_height
 
-    def calcnewpos(self,rect,vector):
-        (angle,z) = vector
-        (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
-        return rect.move(dx,dy)
+ball_radius = 15
+ball_x = WIDTH // 2
+ball_y = HEIGHT - 100
+ball_speed_x = 0
+ball_speed_y = 0
 
-def main():
-    # Initialise screen
-    pygame.init()
-    screen = pygame.display.set_mode((150, 50))#change size
-    pygame.display.set_caption('Basic Pygame program')
+goalkeeper_speed = 5  # Vitesse de base du gardien
+goalkeeper_direction = 1
 
-    # Fill background
-    background = pygame.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((250, 250, 250))
-    # ajouter pygame.Color.g au background
+ball_launched = False
 
-    # Display some text
-    font = pygame.font.Font(None, 36)
-    text = font.render("Début de la séance ", 1, (10, 10, 10))
-    # à mod
-    textpos = text.get_rect()
-    textpos.centerx = background.get_rect().centerx
-    background.blit(text, textpos)
+# Variables aléatoire de la vitesse
+min_time = 3000  # Temps minimum avant de changer la vitesse (en millisecondes)
+max_time = 5000  # Temps maximum avant de changer la vitesse (en millisecondes)
+last_change_time = pygame.time.get_ticks()  # Temps du dernier changement
+randomized_speed = goalkeeper_speed  # Vitesse initiale du gardien
 
-    # Blit everything to the screen
-    screen.blit(background, (0, 0))
-    pygame.display.flip()
+def draw_goal():
+    pygame.draw.rect(screen, BLUE, (goal_x, goal_y, goal_width, goal_height))
 
-    # Event loop
-    while True:
+def draw_goalkeeper(x):
+    pygame.draw.rect(screen, RED, (x, goalkeeper_y, goalkeeper_width, goalkeeper_height))
+
+def draw_ball(x, y):
+    pygame.draw.circle(screen, BLACK, (x, y), ball_radius)
+
+def check_goal(ball_x, ball_y):
+    if goal_x <= ball_x <= goal_x + goal_width and goal_y <= ball_y <= goal_y + goal_height:
+        return True
+    return False
+
+def reset_ball():
+    global ball_x, ball_y, ball_speed_x, ball_speed_y, ball_launched
+    ball_x = WIDTH // 2
+    ball_y = HEIGHT - 100
+    ball_speed_x = 0
+    ball_speed_y = 0
+    ball_launched = False
+
+def game_loop():
+    global ball_speed_y, ball_launched
+
+    start_emg_acquisition()  # Démarrer l'acquisition EMG
+
+    while not game_over:
+        screen.fill(GREEN)
+        draw_goal()
+        draw_goalkeeper(goalkeeper_x)
+        draw_ball(ball_x, ball_y)
+
         for event in pygame.event.get():
-            if event.type == QUIT:
-                return
+            if event.type == pygame.QUIT:
+                game_over = True
 
-        screen.blit(background, (0, 0))
+        #  Lancer la balle si l'EMG dépasse un seuil
+        # au lieu de  if event.type == pygame.KEYDOWN:
+        if emg_signal > SEUILemg and not ball_launched:
+            ball_speed_y = -5
+            ball_launched = True
+            print("Tir déclenché par EMG")
+
         pygame.display.flip()
+        clock.tick(FPS)
 
-
-if __name__ == '__main__': main()
+    pygame.quit()

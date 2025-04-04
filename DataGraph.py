@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt, sosfilt, sosfiltfilt
 from collections import deque
 
+#-----------ajout-----------------------------------
+import threading
 
+emg_signal = 0  # Variable pour stocker le signal EMG
+#-----------ajout-----------------------------------
 
 osDic = {
     "Darwin": f"MacOS/Intel{''.join(platform.python_version().split('.')[:2])}",
@@ -56,6 +60,12 @@ class NewDevice(plux.SignalsDev):
         y_emg = [d[0] for d in self.y_data]
         y_ppg = [d[1] for d in self.y_data]
         y_resp = [d[2] for d in self.y_data]
+
+        #-----------ajouter de chat-------------------------------------------------------------------------------------------
+        global emg_signal
+        emg_signal = abs(data[0])  # On récupère la valeur absolue de l'EMG
+        print(f"EMG signal: {emg_signal}")
+        #------------ajout----------------------------------------------------------------------------------------------------
         
         # Effacer l'ancien graphique
         self.ax.plot(self.x_data, y_emg, label="EMG (Électromyogramme)", color="blue")
@@ -90,6 +100,14 @@ def exampleAcquisition(
     """
     Example acquisition.
     """
+    #------------ajout----------------------------------------------------------------------------------------------------
+    def start_emg_acquisition():
+        thread = threading.Thread(target=exampleAcquisition, args=("BTH98:D3:C1:FE:03:04", 40, 10, [1]))
+        thread.daemon = True
+        thread.start()
+    #------------ajout----------------------------------------------------------------------------------------------------
+
+
     device = NewDevice(address)
     device.duration = int(duration)  # Duration of acquisition in seconds.
     device.frequency = int(frequency)  # Samples per second.

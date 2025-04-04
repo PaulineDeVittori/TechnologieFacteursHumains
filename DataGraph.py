@@ -10,6 +10,7 @@ from collections import deque
 import threading
 
 emg_signal = 0  # Variable pour stocker le signal EMG
+resp_signal = 0  # Variable pour stocker le signal EMG
 #-----------ajout-----------------------------------
 
 osDic = {
@@ -66,6 +67,17 @@ class NewDevice(plux.SignalsDev):
         emg_signal = abs(data[0])  # On récupère la valeur absolue de l'EMG
         print(f"EMG signal: {emg_signal}")
         #------------ajout----------------------------------------------------------------------------------------------------
+        #-----------ajout-------------------------------------------------------------------------------------------
+        global resp_signal
+        ppg_signal = abs(data[1])  # On récupère la valeur absolue de l'EMG
+        print(f"PPG signal: {ppg_signal}")
+        #------------ajout----------------------------------------------------------------------------------------------------
+
+        #-----------ajout-------------------------------------------------------------------------------------------
+        global resp_signal
+        resp_signal = abs(data[2])  # On récupère la valeur absolue de l'EMG
+        print(f"RESP signal: {resp_signal}")
+        #------------ajout----------------------------------------------------------------------------------------------------
         
         # Effacer l'ancien graphique
         self.ax.plot(self.x_data, y_emg, label="EMG (Électromyogramme)", color="blue")
@@ -100,6 +112,7 @@ def exampleAcquisition(
     """
     Example acquisition.
     """
+    #il faudra que je verifie mais normalment cela recupère l'enseble des données qui nous interesse pas uniquement celle de l'emg
     #------------ajout----------------------------------------------------------------------------------------------------
     def start_emg_acquisition():
         thread = threading.Thread(target=exampleAcquisition, args=("BTH98:D3:C1:FE:03:04", 40, 10, [1]))

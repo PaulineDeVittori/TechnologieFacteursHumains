@@ -31,7 +31,9 @@ goalkeeper_y = goal_y + goal_height
 
 ball_radius = 15
 ball_x = WIDTH // 2
+
 ball_y = HEIGHT - 100
+#il va falloir faire varier ca avec les informations de la respiration 
 ball_speed_x = 0
 ball_speed_y = 0
 

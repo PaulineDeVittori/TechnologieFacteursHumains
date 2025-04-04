@@ -51,13 +51,21 @@ class NewDevice(plux.SignalsDev):
 
     def onRawFrame(self, nSeq, data):  # Traitement des données à chaque image
         self.x_data.append(nSeq)
-        self.y_data.append(data[0])  # Supposons que le signal EMG est dans data[0]
+        self.y_data.append((data[0],data[1],data[2]))  # Supposons que le signal EMG est dans data[0]
 
+        y_emg = [d[0] for d in self.y_data]
+        y_ppg = [d[1] for d in self.y_data]
+        y_resp = [d[2] for d in self.y_data]
+        
         # Effacer l'ancien graphique
+        self.ax.plot(self.x_data, y_emg, label="EMG (Électromyogramme)", color="blue")
+        self.ax.plot(self.x_data, y_ppg, label="Photopléthysmogramme", color="red")
+        self.ax.plot(self.x_data, y_resp, label="capteur de respiration", color="green")
         self.ax.clear()
 
         # Mettre à jour le graphique avec les nouvelles données
-        self.ax.plot(self.x_data, self.y_data, label="Signal EMG")
+        self.ax.legend()
+        self.ax.plot(self.x_data, self.y_data, label="Affichage en temps réel : EMG + Photopléthysmogramme")
         self.ax.set_xlabel("Échantillons (n° de frame)")
         self.ax.set_ylabel("Amplitude du signal")
         self.ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
@@ -67,7 +75,7 @@ class NewDevice(plux.SignalsDev):
         plt.pause(0.01)  # Délai pour l'affichage dynamique
 
         # Afficher les données dans le terminal
-        print(f"Frame: {nSeq}, Signal: {data[0]}")
+        print(f"Frame: {nSeq}, Signal: {data[0], data[1], data[2]}")
 
         return nSeq > self.duration * self.frequency
 
@@ -76,7 +84,7 @@ def exampleAcquisition(
     address="BTH98:D3:C1:FE:03:04",
     duration=40,
     frequency=10,
-    active_ports=[1],
+    active_ports=[1,2,3],
     data_callback=None,
 ):  # time acquisition for each frequency
     """

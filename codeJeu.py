@@ -32,10 +32,16 @@ ball_y = HEIGHT - 100
 ball_speed_x = 0
 ball_speed_y = 0
 
-goalkeeper_speed = 5
+goalkeeper_speed = 5  # Vitesse de base du gardien
 goalkeeper_direction = 1
 
 ball_launched = False
+
+# Variables pour l'aléatoire de la vitesse
+min_time = 3000  # Temps minimum avant de changer la vitesse (en millisecondes)
+max_time = 5000  # Temps maximum avant de changer la vitesse (en millisecondes)
+last_change_time = pygame.time.get_ticks()  # Temps du dernier changement
+randomized_speed = goalkeeper_speed  # Vitesse initiale du gardien
 
 def draw_goal():
     pygame.draw.rect(screen, BLUE, (goal_x, goal_y, goal_width, goal_height))
@@ -60,7 +66,7 @@ def reset_ball():
     ball_launched = False
 
 def game_loop():
-    global goalkeeper_x, ball_x, ball_y, ball_speed_x, ball_speed_y, goalkeeper_direction, ball_launched
+    global goalkeeper_x, ball_x, ball_y, ball_speed_x, ball_speed_y, goalkeeper_direction, ball_launched, randomized_speed, last_change_time
 
     game_over = False
     score = 0
@@ -90,7 +96,15 @@ def game_loop():
         if ball_y > HEIGHT:  # Si le ballon sort par le bas de l'écran
             reset_ball()  # Réinitialiser le ballon
 
-        goalkeeper_x += goalkeeper_speed * goalkeeper_direction
+        # Vérifier si le temps écoulé depuis le dernier changement est supérieur à un intervalle aléatoire (3 à 5 secondes)
+        current_time = pygame.time.get_ticks()
+        if current_time - last_change_time >= random.randint(min_time, max_time):
+            # Modifier la vitesse du gardien de manière aléatoire
+            randomized_speed = goalkeeper_speed + random.uniform(-2, 2)  # Variation plus douce de la vitesse
+            last_change_time = current_time  # Réinitialiser le temps du dernier changement
+
+        # Déplacer le gardien avec la vitesse aléatoire
+        goalkeeper_x += randomized_speed * goalkeeper_direction
 
         if goalkeeper_x <= 200:  # Définir la limite gauche
             goalkeeper_direction = 1

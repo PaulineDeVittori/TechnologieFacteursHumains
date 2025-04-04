@@ -58,7 +58,10 @@ class NewDevice(plux.SignalsDev):
 
         # Mettre à jour le graphique avec les nouvelles données
         self.ax.plot(self.x_data, self.y_data, label="Signal EMG")
-        self.ax.legend()
+        self.ax.set_xlabel("Échantillons (n° de frame)")
+        self.ax.set_ylabel("Amplitude du signal")
+        self.ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+        #self.ax.legend()
 
         # Mettre à jour l'affichage avec plt.pause() pour permettre la mise à jour en temps réel
         plt.pause(0.01)  # Délai pour l'affichage dynamique
@@ -71,9 +74,10 @@ class NewDevice(plux.SignalsDev):
 
 def exampleAcquisition(
     address="BTH98:D3:C1:FE:03:04",
-    duration=20,
+    duration=40,
     frequency=10,
     active_ports=[1],
+    data_callback=None,
 ):  # time acquisition for each frequency
     """
     Example acquisition.

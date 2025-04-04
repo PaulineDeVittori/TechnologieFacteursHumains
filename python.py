@@ -7,12 +7,12 @@ try:
     import pygame
     from socket import *
     from pygame.locals import *
-except ImportError, err:
+except ImportError as err:
     print(f"couldn't load module. {err}")
     sys.exit(2)
 
     class Ball(pygame.sprite.Sprite):
-    """A ball that will move across the screen
+        """A ball that will move across the screen
     Returns: ball object
     Functions: update, calcnewpos
     Entree: frequence contraction des muscle du mollet + mouvement (acceleration)

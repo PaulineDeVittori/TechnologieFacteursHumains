@@ -66,6 +66,17 @@ def reset_ball():
     ball_launched = False
 
 
+from bitalino import BITalino
+
+# Adresse MAC de ta carte BITalino (remplace par la tienne)
+mac_address = "BTH98:D3:C1:FE:03:04"
+device = BITalino(mac_address)
+
+# Démarrer la capture sur le canal EMG (par ex. canal 0)
+device.start(1000, [0])  # 1000 Hz, canal analogique 0
+
+
+
 
 def game_loop():
     global goalkeeper_x, ball_x, ball_y, ball_speed_x, ball_speed_y, goalkeeper_direction, ball_launched, randomized_speed, last_change_time

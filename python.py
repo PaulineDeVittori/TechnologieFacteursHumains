@@ -2,7 +2,7 @@ import pygame
 import random
 from emg_acquisition_script import emg_signal, start_emg_acquisition  # 
 
-SEUILemg=2000 
+SEUILemg=520 
 
 pygame.init()
 
@@ -31,7 +31,9 @@ goalkeeper_y = goal_y + goal_height
 
 ball_radius = 15
 ball_x = WIDTH // 2
+
 ball_y = HEIGHT - 100
+#il va falloir faire varier ca avec les informations de la respiration 
 ball_speed_x = 0
 ball_speed_y = 0
 
@@ -86,10 +88,49 @@ def game_loop():
         #  Lancer la balle si l'EMG dépasse un seuil
         # au lieu de  if event.type == pygame.KEYDOWN:
         if emg_signal > SEUILemg and not ball_launched:
+            ball_speed_x = 0
             ball_speed_y = -5
             ball_launched = True
             print("Tir déclenché par EMG")
 
+        ball_x += ball_speed_x
+        ball_y += ball_speed_y
+
+        if ball_y <= 0:  # Si le ballon touche le haut de l'écran
+            ball_speed_y = 0  # Le ballon arrête de se déplacer vers le haut
+            ball_launched = False  # Le ballon ne peut plus être relancé tant qu'il n'est pas réinitialisé
+
+        if ball_y > HEIGHT:  # Si le ballon sort par le bas de l'écran
+            reset_ball()  # Réinitialiser le ballon
+
+        # Vérifier si le temps écoulé depuis le dernier changement est supérieur à un intervalle aléatoire (3 à 5 secondes)
+        current_time = pygame.time.get_ticks()
+        if current_time - last_change_time >= random.randint(min_time, max_time):
+            # Modifier la vitesse du gardien de manière aléatoire
+            randomized_speed = goalkeeper_speed + random.uniform(-2, 2)  # Variation plus douce de la vitesse
+            last_change_time = current_time  # Réinitialiser le temps du dernier changement
+
+        # Déplacer le gardien avec la vitesse aléatoire
+        goalkeeper_x += randomized_speed * goalkeeper_direction
+
+        if goalkeeper_x <= 200:  # Définir la limite gauche
+            goalkeeper_direction = 1
+        elif goalkeeper_x >= WIDTH - goalkeeper_width - 200:  # Définir la limite droite
+            goalkeeper_direction = -1
+
+        if goalkeeper_y <= ball_y + ball_radius <= goalkeeper_y + goalkeeper_height and \
+           goalkeeper_x <= ball_x <= goalkeeper_x + goalkeeper_width:
+            ball_speed_y = -ball_speed_y
+            ball_speed_x = random.choice([-5, 5])
+
+        if check_goal(ball_x, ball_y):
+            score += 1
+            print("But ! Score:", score)
+            reset_ball()  # Réinitialiser le ballon après un but
+
+        font = pygame.font.SysFont(None, 36)
+        score_text = font.render(f"Score: {score}", True, BLACK)
+        screen.blit(score_text, (10, 10))
         pygame.display.flip()
         clock.tick(FPS)
 

@@ -69,7 +69,7 @@ def reset_ball():
 from bitalino import BITalino
 
 # Adresse MAC de ta carte BITalino (remplace par la tienne)
-mac_address = "XX:XX:XX:XX:XX:XX"
+mac_address = "BTH98:D3:C1:FE:03:04"
 device = BITalino(mac_address)
 
 # Démarrer la capture sur le canal EMG (par ex. canal 0)

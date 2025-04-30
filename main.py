@@ -21,7 +21,7 @@ sys.path.append(f"PLUX-API-Python3/{osDic[platform.system()]}")
 # ----- Classe de capture des signaux -----
 class NewDevice(plux.SignalsDev):
     def __init__(self, address):
-        plux.SignalsDev.__init__(self, address)
+        super().__init__(address)
         self.duration = 0
         self.frequency = 0
         self.x_data = []

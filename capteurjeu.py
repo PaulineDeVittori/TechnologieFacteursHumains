@@ -437,7 +437,7 @@ def game_loop(device):
         emg_text = font_small.render(f"EMG: {emg_value:.1f}", True, WHITE)
         ppg_text = font_small.render(f"PPG: {ppg_value:.1f}", True, WHITE)
         resp_text = font_small.render(f"RESP: {resp_value:.1f}", True, WHITE)
-        instr_text = font_small.render("Respirez pour ralentir le gardien!", True, WHITE)
+        instr_text = font_small.render(" ", True, WHITE)
         
         screen.blit(emg_text, (20, HEIGHT - 120))
         screen.blit(ppg_text, (20, HEIGHT - 95))

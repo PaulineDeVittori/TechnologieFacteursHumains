@@ -69,32 +69,15 @@ class NewDevice(plux.SignalsDev):
         #------------ajout----------------------------------------------------------------------------------------------------
         #-----------ajout-------------------------------------------------------------------------------------------
         global resp_signal
-        ppg_signal = abs(data[1])  # On récupère la valeur absolue du PPG
+        ppg_signal = abs(data[1])  # On récupère la valeur absolue de l'EMG
         print(f"PPG signal: {ppg_signal}")
         #------------ajout----------------------------------------------------------------------------------------------------
 
         #-----------ajout-------------------------------------------------------------------------------------------
         global resp_signal
-        resp_signal = abs(data[2])  # On récupère la valeur absolue de capteur de respiration
+        resp_signal = abs(data[2])  # On récupère la valeur absolue de l'EMG
         print(f"RESP signal: {resp_signal}")
         #------------ajout----------------------------------------------------------------------------------------------------
-        
-        # Effacer l'ancien graphique
-        self.ax.plot(self.x_data, y_emg, label="EMG (Électromyogramme)", color="blue")
-        self.ax.plot(self.x_data, y_ppg, label="Photopléthysmogramme", color="red")
-        self.ax.plot(self.x_data, y_resp, label="capteur de respiration", color="green")
-        self.ax.clear()
-
-        # Mettre à jour le graphique avec les nouvelles données
-        self.ax.legend()
-        self.ax.plot(self.x_data, self.y_data, label="Affichage en temps réel : EMG + Photopléthysmogramme")
-        self.ax.set_xlabel("Échantillons (n° de frame)")
-        self.ax.set_ylabel("Amplitude du signal")
-        self.ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
-        #self.ax.legend()
-
-        # Mettre à jour l'affichage avec plt.pause() pour permettre la mise à jour en temps réel
-        plt.pause(0.01)  # Délai pour l'affichage dynamique
 
         # Afficher les données dans le terminal
         print(f"Frame: {nSeq}, Signal: {data[0], data[1], data[2]}")

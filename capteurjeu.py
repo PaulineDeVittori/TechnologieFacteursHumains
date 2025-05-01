@@ -62,7 +62,7 @@ def game_loop(device):
     # Dimensions de l'écran
     WIDTH, HEIGHT = 800, 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Jeu de Foot")
+    pygame.display.set_caption("Jeu de Foot - Contrôle par Respiration")
     clock = pygame.time.Clock()
     FPS = 60
 
@@ -173,9 +173,13 @@ def game_loop(device):
     goalkeeper_height = 80
     goalkeeper_x = (WIDTH - goalkeeper_width) // 2
     goalkeeper_y = goal_y + 40
-    goalkeeper_speed = 5
+    goalkeeper_base_speed = 5  # Vitesse de base du gardien
+    goalkeeper_min_speed = 1   # Vitesse minimale quand la respiration est élevée
     goalkeeper_direction = 1
-    randomized_speed = goalkeeper_speed
+    current_goalkeeper_speed = goalkeeper_base_speed
+
+    # Seuil de respiration pour ralentir le gardien
+    resp_threshold = 700
 
     # Paramètres du ballon
     ball_radius = 15
@@ -265,7 +269,7 @@ def game_loop(device):
                     score = 0
                     confetti.clear()
 
-        # Lire la valeur EMG et déclencher une action si le seuil est dépassé
+        # Lire les valeurs des capteurs
         emg_value = device.latest_emg
         ppg_value = device.latest_ppg
         resp_value = device.latest_resp
@@ -309,13 +313,25 @@ def game_loop(device):
                 ball_speed_x = 0
                 ball_speed_y = 0
 
+            # Ajuster la vitesse du gardien en fonction de la respiration
+            if resp_value > resp_threshold:
+                # Calculer un facteur de ralentissement basé sur la valeur de respiration
+                # Plus la respiration est élevée au-dessus du seuil, plus le gardien ralentit
+                resp_factor = min(1.0, resp_threshold / resp_value)
+                # Appliquer le facteur à la vitesse de base, mais garantir une vitesse minimale
+                current_goalkeeper_speed = max(goalkeeper_min_speed, goalkeeper_base_speed * resp_factor)
+                print(f"Respiration {resp_value} > {resp_threshold} : vitesse du gardien réduite à {current_goalkeeper_speed:.2f}")
+            else:
+                # Vitesse normale si respiration sous le seuil
+                current_goalkeeper_speed = goalkeeper_base_speed
+
             # Mouvement gardien
             current_time = pygame.time.get_ticks()
             if current_time - last_change_time > 3000:  # Changer direction toutes les 3 secondes
-                randomized_speed = goalkeeper_speed + random.uniform(-2, 2)
+                # Garder la même logique de changement de direction, mais avec vitesse variable
                 last_change_time = current_time
 
-            goalkeeper_x += randomized_speed * goalkeeper_direction
+            goalkeeper_x += current_goalkeeper_speed * goalkeeper_direction
             if goalkeeper_x <= 200:
                 goalkeeper_direction = 1
             elif goalkeeper_x >= WIDTH - goalkeeper_width - 200:
@@ -413,24 +429,34 @@ def game_loop(device):
         screen.blit(score_shadow, (12, 12))
         screen.blit(score_text, (10, 10))
         
-        # Afficher les valeurs des capteurs
-        sensor_bg = pygame.Surface((200, 90), pygame.SRCALPHA)
+        # Afficher les valeurs des capteurs avec les seuils
+        sensor_bg = pygame.Surface((200, 120), pygame.SRCALPHA)
         sensor_bg.fill((0, 0, 0, 128))
-        screen.blit(sensor_bg, (10, HEIGHT - 100))
+        screen.blit(sensor_bg, (10, HEIGHT - 130))
         
         emg_text = font_small.render(f"EMG: {emg_value:.1f}", True, WHITE)
         ppg_text = font_small.render(f"PPG: {ppg_value:.1f}", True, WHITE)
         resp_text = font_small.render(f"RESP: {resp_value:.1f}", True, WHITE)
-        screen.blit(emg_text, (20, HEIGHT - 90))
-        screen.blit(ppg_text, (20, HEIGHT - 65))
-        screen.blit(resp_text, (20, HEIGHT - 40))
+        instr_text = font_small.render("Respirez pour ralentir le gardien!", True, WHITE)
         
-        # Barre de progression EMG
+        screen.blit(emg_text, (20, HEIGHT - 120))
+        screen.blit(ppg_text, (20, HEIGHT - 95))
+        screen.blit(resp_text, (20, HEIGHT - 70))
+        screen.blit(instr_text, (20, HEIGHT - 45))
+        
+        # Barre de progression EMG (pour tirer)
         emg_bar_width = 150
         emg_fill = min(emg_value / emg_threshold * emg_bar_width, emg_bar_width)
         pygame.draw.rect(screen, (100, 100, 100), (20, HEIGHT - 20, emg_bar_width, 10))
         pygame.draw.rect(screen, (255, 0, 0) if emg_value > emg_threshold else (0, 255, 0), 
                         (20, HEIGHT - 20, emg_fill, 10))
+        
+        # Barre de progression RESP (pour ralentir le gardien)
+        resp_bar_width = 150
+        resp_fill = min(resp_value / resp_threshold * resp_bar_width, resp_bar_width)
+        pygame.draw.rect(screen, (100, 100, 100), (200, HEIGHT - 20, resp_bar_width, 10))
+        pygame.draw.rect(screen, (0, 0, 255) if resp_value > resp_threshold else (100, 100, 255), 
+                        (200, HEIGHT - 20, resp_fill, 10))
         
         pygame.display.flip()
         clock.tick(FPS)

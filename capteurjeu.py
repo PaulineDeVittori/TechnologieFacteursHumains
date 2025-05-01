@@ -46,8 +46,8 @@ class SignalDevice(plux.SignalsDev):
             self.callback(nSeq, data)
 
         # Condition d'arrêt basée sur le nombre d'échantillons
-        self.max_samples = self.duration * self.frequency
-        return nSeq > self.max_samples
+        
+        return False
     
     def start_acquisition(self, frequency=100, active_ports=[1, 2, 3]):
         self.start(frequency, active_ports, 16)
@@ -176,6 +176,12 @@ def game_loop(device):
         font = pygame.font.SysFont(None, 36)
         score_text = font.render(f"Score: {score}", True, BLACK)
         screen.blit(score_text, (10, 10))
+        
+        #nb but 
+        if score> 5:
+            score_text = font.render(f"But atteint !", True, BLACK)
+            break
+            
         
         pygame.display.flip()
         clock.tick(FPS)

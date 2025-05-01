@@ -69,13 +69,13 @@ class NewDevice(plux.SignalsDev):
         #------------ajout----------------------------------------------------------------------------------------------------
         #-----------ajout-------------------------------------------------------------------------------------------
         global resp_signal
-        ppg_signal = abs(data[1])  # On récupère la valeur absolue de l'EMG
+        ppg_signal = abs(data[1])  # On récupère la valeur absolue du PPG
         print(f"PPG signal: {ppg_signal}")
         #------------ajout----------------------------------------------------------------------------------------------------
 
         #-----------ajout-------------------------------------------------------------------------------------------
         global resp_signal
-        resp_signal = abs(data[2])  # On récupère la valeur absolue de l'EMG
+        resp_signal = abs(data[2])  # On récupère la valeur absolue de capteur de respiration
         print(f"RESP signal: {resp_signal}")
         #------------ajout----------------------------------------------------------------------------------------------------
         

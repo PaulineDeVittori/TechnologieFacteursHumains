@@ -62,7 +62,7 @@ def game_loop(device):
     # Dimensions de l'écran
     WIDTH, HEIGHT = 800, 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Jeu de Foot")
+    pygame.display.set_caption("Jeu de Foot - Contrôle par Respiration")
     clock = pygame.time.Clock()
     FPS = 60
 
@@ -173,9 +173,15 @@ def game_loop(device):
     goalkeeper_height = 80
     goalkeeper_x = (WIDTH - goalkeeper_width) // 2
     goalkeeper_y = goal_y + 40
-    goalkeeper_speed = 5
+    goalkeeper_base_speed = 5  # Vitesse de base du gardien
+    goalkeeper_min_speed = 1   # Vitesse minimale quand le joueur est stressé
     goalkeeper_direction = 1
-    randomized_speed = goalkeeper_speed
+    current_goalkeeper_speed = goalkeeper_base_speed
+
+    # Seuils pour détecter le stress du joueur et ralentir le gardien
+    resp_threshold = 650  # Seuil de respiration
+    ppg_threshold = 600   # Seuil de PPG
+    is_stressed = False   # État de stress du joueur
 
     # Paramètres du ballon
     ball_radius = 15
@@ -265,7 +271,7 @@ def game_loop(device):
                     score = 0
                     confetti.clear()
 
-        # Lire la valeur EMG et déclencher une action si le seuil est dépassé
+        # Lire les valeurs des capteurs
         emg_value = device.latest_emg
         ppg_value = device.latest_ppg
         resp_value = device.latest_resp
@@ -309,13 +315,34 @@ def game_loop(device):
                 ball_speed_x = 0
                 ball_speed_y = 0
 
+            # Déterminer si le joueur est stressé (RESP et PPG au-dessus des seuils)
+            is_stressed = resp_value > resp_threshold and ppg_value > ppg_threshold
+            
+            # Ajuster la vitesse du gardien en fonction de l'état de stress
+            if is_stressed:
+                # Calculer un facteur de ralentissement basé sur les valeurs des signaux
+                # Plus les valeurs sont élevées au-dessus des seuils, plus le gardien ralentit
+                resp_factor = min(1.0, resp_threshold / resp_value)
+                ppg_factor = min(1.0, ppg_threshold / ppg_value)
+                
+                # Combiner les deux facteurs (moyenne) pour un effet plus équilibré
+                combined_factor = (resp_factor + ppg_factor) / 2
+                
+                # Appliquer le facteur à la vitesse de base, mais garantir une vitesse minimale
+                current_goalkeeper_speed = max(goalkeeper_min_speed, goalkeeper_base_speed * combined_factor)
+                print(f"Joueur stressé! RESP: {resp_value} > {resp_threshold}, PPG: {ppg_value} > {ppg_threshold}")
+                print(f"Vitesse du gardien réduite à {current_goalkeeper_speed:.2f}")
+            else:
+                # Vitesse normale si le joueur n'est pas stressé
+                current_goalkeeper_speed = goalkeeper_base_speed
+
             # Mouvement gardien
             current_time = pygame.time.get_ticks()
             if current_time - last_change_time > 3000:  # Changer direction toutes les 3 secondes
-                randomized_speed = goalkeeper_speed + random.uniform(-2, 2)
+                # Garder la même logique de changement de direction, mais avec vitesse variable
                 last_change_time = current_time
 
-            goalkeeper_x += randomized_speed * goalkeeper_direction
+            goalkeeper_x += current_goalkeeper_speed * goalkeeper_direction
             if goalkeeper_x <= 200:
                 goalkeeper_direction = 1
             elif goalkeeper_x >= WIDTH - goalkeeper_width - 200:
@@ -413,24 +440,51 @@ def game_loop(device):
         screen.blit(score_shadow, (12, 12))
         screen.blit(score_text, (10, 10))
         
-        # Afficher les valeurs des capteurs
-        sensor_bg = pygame.Surface((200, 90), pygame.SRCALPHA)
+        # Afficher les valeurs des capteurs avec les seuils
+        sensor_bg = pygame.Surface((350, 120), pygame.SRCALPHA)
         sensor_bg.fill((0, 0, 0, 128))
-        screen.blit(sensor_bg, (10, HEIGHT - 100))
+        screen.blit(sensor_bg, (10, HEIGHT - 130))
         
-        emg_text = font_small.render(f"EMG: {emg_value:.1f}", True, WHITE)
-        ppg_text = font_small.render(f"PPG: {ppg_value:.1f}", True, WHITE)
-        resp_text = font_small.render(f"RESP: {resp_value:.1f}", True, WHITE)
-        screen.blit(emg_text, (20, HEIGHT - 90))
-        screen.blit(ppg_text, (20, HEIGHT - 65))
-        screen.blit(resp_text, (20, HEIGHT - 40))
+        # Textes des capteurs avec indication des seuils
+        emg_color = WHITE if not emg_value > emg_threshold else (255, 100, 100)
+        ppg_color = WHITE if not ppg_value > ppg_threshold else (255, 100, 100)
+        resp_color = WHITE if not resp_value > resp_threshold else (255, 100, 100)
         
-        # Barre de progression EMG
+        emg_text = font_small.render(f"EMG: {emg_value:.1f} / {emg_threshold}", True, emg_color)
+        ppg_text = font_small.render(f"PPG: {ppg_value:.1f} / {ppg_threshold}", True, ppg_color)
+        resp_text = font_small.render(f"RESP: {resp_value:.1f} / {resp_threshold}", True, resp_color)
+        
+        # Message de stress et instruction
+        if is_stressed:
+            stress_text = font_small.render("STRESS DÉTECTÉ! Gardien ralenti", True, (255, 100, 100))
+        else:
+            stress_text = font_small.render(" ", True, WHITE)
+        
+        screen.blit(emg_text, (20, HEIGHT - 120))
+        screen.blit(ppg_text, (20, HEIGHT - 95))
+        screen.blit(resp_text, (20, HEIGHT - 70))
+        screen.blit(stress_text, (20, HEIGHT - 45))
+        
+        # Barre de progression EMG (pour tirer)
         emg_bar_width = 150
         emg_fill = min(emg_value / emg_threshold * emg_bar_width, emg_bar_width)
         pygame.draw.rect(screen, (100, 100, 100), (20, HEIGHT - 20, emg_bar_width, 10))
         pygame.draw.rect(screen, (255, 0, 0) if emg_value > emg_threshold else (0, 255, 0), 
                         (20, HEIGHT - 20, emg_fill, 10))
+        
+        # Barre de progression RESP
+        resp_bar_width = 100
+        resp_fill = min(resp_value / resp_threshold * resp_bar_width, resp_bar_width)
+        pygame.draw.rect(screen, (100, 100, 100), (200, HEIGHT - 20, resp_bar_width, 10))
+        pygame.draw.rect(screen, (0, 0, 255) if resp_value > resp_threshold else (100, 100, 255), 
+                        (200, HEIGHT - 20, resp_fill, 10))
+        
+        # Barre de progression PPG
+        ppg_bar_width = 100
+        ppg_fill = min(ppg_value / ppg_threshold * ppg_bar_width, ppg_bar_width)
+        pygame.draw.rect(screen, (100, 100, 100), (320, HEIGHT - 20, ppg_bar_width, 10))
+        pygame.draw.rect(screen, (255, 0, 255) if ppg_value > ppg_threshold else (200, 100, 200), 
+                        (320, HEIGHT - 20, ppg_fill, 10))
         
         pygame.display.flip()
         clock.tick(FPS)

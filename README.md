@@ -4,7 +4,7 @@
 
 **Objectif** : Application motivante sous forme d’un petit jeu qui permet aux personnes qui ont besoin d’une rééducation de la cheville de faire une rééducation de manière ludique.
 
-Le jeu est composé d’un but de foot et d’un ballon. Lorsque la personne fait un mouvement de la cheville, le capteur capte la contraction des muscles du mollet et le ballon accélère. L'objectif est de mettre le ballon dans le but. Il y a un petit personnage qui est le gardien de but qui se déplace de gauche à droite pour empêcher le ballon de rentrer. 
+Le jeu est composé d’un but de foot et d’un ballon. Lorsque la personne fait un mouvement d'extension ou de flexion du pied, l'électromyogramme capte la contraction des muscles du mollet et le ballon se lance. L'objectif est de mettre le ballon dans le but. Il y a un petit personnage qui est le gardien de but qui se déplace de gauche à droite pour empêcher le ballon de rentrer. Un capteur de respiration et un photoplétismogramme sont placé sur le joueur pour détecter si le joueur est stressé, si c'est le cas le gardien de but ralenti.
 
 ### Fonctionnalités principales :
 - **Rééducation de la cheville** : Le jeu utilise des capteurs musculaires pour détecter les mouvements de la cheville et ajuste la vitesse du ballon.

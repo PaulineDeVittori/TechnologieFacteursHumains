@@ -196,7 +196,7 @@ def game_loop(device):
     score = 0
     emg_threshold = 550  # Seuil pour déclencher une action
     game_over = False
-    win_score = 5
+    win_score = 10
 
     # Paramètres pour les effets visuels
     particles = []

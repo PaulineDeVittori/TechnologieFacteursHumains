@@ -39,9 +39,24 @@ Le jeu se déroule sur un terrain de football virtuel avec les éléments suivan
 - Pygame
 - Bibliothèques pour la gestion des capteurs (EMG, ECG/PPG, respiration)
 
-### Étapes d'installation :
+### Étapes d'installation du jeu :
 
 1. Clonez ce dépôt sur votre machine locale :
 
    ```bash
    git clone https://github.com/PaulineDeVittori/TechnologieFacteursHumains
+
+2. Ouvrez le fichier **capteurjeu.py** pour lancez le jeu.
+   
+3. Branchez les capteurs sur la carte bitalino:
+   - le capteur EMG sur le port A1
+   - le capteur PPG sur le port A2
+   - le capteur de respiration sur le port A3
+
+4. Lancez le jeu.
+
+5. Pour lancez le graphique dynamique, executez le fichier **DataGraph**.
+
+
+
+      

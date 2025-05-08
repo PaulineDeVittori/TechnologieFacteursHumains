@@ -4,7 +4,7 @@
 
 **Objectif** : Application motivante sous forme d’un petit jeu qui permet aux personnes qui ont besoin d’une rééducation de la cheville de faire une rééducation de manière ludique.
 
-Le jeu est composé d’un but de foot et d’un ballon. Lorsque la personne fait un mouvement d'extension ou de flexion du pied, l'électromyogramme capte la contraction des muscles du mollet et le ballon se lance. L'objectif est de mettre le ballon dans le but. Il y a un petit personnage qui est le gardien de but qui se déplace de gauche à droite pour empêcher le ballon de rentrer. Un capteur de respiration et un photoplétismogramme sont placé sur le joueur pour détecter si le joueur est stressé, si c'est le cas le gardien de but ralenti.
+Le jeu est composé d’un but de foot et d’un ballon. Lorsque la personne fait un mouvement d'extension ou de flexion du pied, l'électromyogramme capte la contraction des muscles du mollet et le ballon se lance. L'objectif est de mettre le ballon dans le but. Il y a un petit personnage qui est le gardien de but qui se déplace de gauche à droite pour empêcher le ballon de rentrer. Un capteur de respiration et un photoplétysmogramme sont placés sur le joueur pour détecter si le joueur est stressé, si c'est le cas le gardien de but ralentit.
 
 ### Fonctionnalités principales :
 - **Rééducation de la cheville** : Le jeu utilise des capteurs musculaires pour détecter les mouvements de la cheville et ajuste la vitesse du ballon.
@@ -28,7 +28,7 @@ Le jeu se déroule sur un terrain de football virtuel avec les éléments suivan
 
 ### Mécanique du jeu :
 1. **Détection des mouvements de la cheville** : Un capteur électromyographe capte la contraction des muscles du mollet et accélère le ballon en fonction de ces contractions.
-2. **Capteurs de stress** : Un photopletysmogramme (ECG) et un senseur de respiration mesurent l'effort du joueur. Si le joueur est stressé, c’est-à-dire que les capteurs de rythme cardiaque et de respiration captent des signaux élevés, alors le jeu module sa difficulté en faisant se déplacer le petit personnage gardien de but moins vite. Mettre le ballon dans le but sera ainsi plus facile.
+2. **Capteurs de stress** : Un photopletysmogramme (PPG) et un senseur de respiration mesurent l'effort du joueur. Si le joueur est stressé, c’est-à-dire que les capteurs de rythme cardiaque et de respiration captent des signaux élevés, alors le jeu module sa difficulté en faisant se déplacer le petit personnage gardien de but moins vite. Mettre le ballon dans le but sera ainsi plus facile.
 3. **Rééducation** : Le jeu permet à l'utilisateur de s'exercer de manière ludique, tout en faisant des mouvements spécifiques de la cheville.
 4. **Gagner des points** : A chaque but, le joueur marque un point. Le nombre de points nécessaires pour gagner peut être personnalisé pour chaque séance de rééducation.
 

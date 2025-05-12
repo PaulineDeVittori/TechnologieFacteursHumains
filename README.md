@@ -18,6 +18,7 @@ Le jeu est composé d’un but de foot et d’un ballon. Lorsque la personne fai
 - **Electromyographe (EMG)** : Utilisée pour mesurer l'activité musculaire et détecter la contraction des muscles du mollet.
 - **Photopléthysmogramme (PPG)** : Pour mesurer l'activité cardiaque et déterminer l'effort physique de l'utilisateur.
 - **Senseur de respiration** : Pour détecter le niveau d'effort en fonction de la respiration du joueur.
+- **Utilisation d'une IA (Claude) pour l'interface du jeu**
 
 ## Fonctionnement du jeu
 
